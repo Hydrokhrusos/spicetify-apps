@@ -1,5 +1,8 @@
 import type { ReactFlowJsonObject } from 'reactflow';
 
+// Legacy storage system
+// TODO: Remove this in a future version
+
 const APP_KEY = 'playlist-maker';
 const WORKFLOW_KEY = `${APP_KEY}:workflows`;
 const ARTIST_GENRES_KEY = `${APP_KEY}:artist-genres`;
@@ -40,40 +43,6 @@ export function getWorkflowsFromStorage(): SavedWorkflow[] {
     ) as SavedWorkflow[];
 }
 
-export function setArtistsGenresCache(
-    artistsGenres: Map<string, ItemWithExpiry<string[]>>,
-): void {
-    Spicetify.LocalStorage.set(
-        ARTIST_GENRES_KEY,
-        JSON.stringify(Array.from(artistsGenres)),
-    );
-}
-
-export function getArtistsGenresCache(): Map<string, ItemWithExpiry<string[]>> {
-    const cache = JSON.parse(
-        Spicetify.LocalStorage.get(ARTIST_GENRES_KEY) ?? '[]',
-    ) as [string, ItemWithExpiry<string[]>][];
-
-    return new Map(cache);
-}
-
-export function removeExpired<T>(
-    map: Map<string, ItemWithExpiry<T>>,
-): Map<string, ItemWithExpiry<T>> {
-    const now = new Date();
-
-    for (const [key, value] of map.entries()) {
-        if (value.expiry < now.getTime()) {
-            map.delete(key);
-        }
-    }
-
-    return map;
-}
-
-export function createWithExpiry<T>(value: T, ttl: number): ItemWithExpiry<T> {
-    return {
-        value,
-        expiry: new Date().getTime() + ttl,
-    };
+export function deleteLegacyArtistGenres(): void {
+    Spicetify.LocalStorage.remove(ARTIST_GENRES_KEY);
 }
