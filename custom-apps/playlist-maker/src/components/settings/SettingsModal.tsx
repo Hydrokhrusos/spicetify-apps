@@ -57,7 +57,7 @@ export function SettingsModal(): JSX.Element {
             <input
                 type="text"
                 placeholder="Search artist"
-                className="placeholder:(--text-subdued) mb-4 w-full rounded border border-solid border-(--essential-subdued) bg-(--background-elevated) p-2 text-(--text-normal) outline-none focus:border-(--accent)"
+                className="mb-4 w-full rounded border border-solid border-(--essential-subdued) px-2 py-1 focus:border-(--essential-base)"
                 value={search}
                 onChange={(e) => {
                     onSearchChanged(e.target.value);

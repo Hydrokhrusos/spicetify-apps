@@ -1,10 +1,11 @@
-import React from 'react';
+import { getWorkflow } from 'custom-apps/playlist-maker/src/db/workflows/workflow-db';
 import useDialogStore, {
     type DialogState,
 } from 'custom-apps/playlist-maker/src/stores/dialog-store';
 import useAppStore, {
     type AppState,
 } from 'custom-apps/playlist-maker/src/stores/store';
+import React from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
 export function ConfirmLoadDialog(): JSX.Element {
@@ -32,11 +33,30 @@ export function ConfirmLoadDialog(): JSX.Element {
     return (
         <Spicetify.ReactComponent.ConfirmDialog
             isOpen={showConfirmLoadModal}
-            onConfirm={() => {
+            onConfirm={async () => {
                 setShowConfirmLoadModal(false);
-                if (selectedWorkflow !== null) {
-                    loadWorkflow(selectedWorkflow);
+
+                if (selectedWorkflow === null) {
+                    Spicetify.showNotification(
+                        'Failed to load workflow',
+                        true,
+                        2000,
+                    );
+                    return;
                 }
+
+                const workflowToLoad = await getWorkflow(selectedWorkflow.id);
+
+                if (workflowToLoad === undefined) {
+                    Spicetify.showNotification(
+                        'Failed to load workflow',
+                        true,
+                        2000,
+                    );
+                    return;
+                }
+
+                loadWorkflow(workflowToLoad);
                 Spicetify.PopupModal.hide();
             }}
             onClose={() => {

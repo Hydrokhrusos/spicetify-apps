@@ -1,4 +1,5 @@
-import type { ReactFlowJsonObject } from 'reactflow';
+import type { SavedWorkflow } from '../db/workflows/saved-workflow';
+import { insertLegacyWorkflows } from '../db/workflows/workflow-db';
 
 // Legacy storage system
 // TODO: Remove this in a future version
@@ -7,40 +8,26 @@ const APP_KEY = 'playlist-maker';
 const WORKFLOW_KEY = `${APP_KEY}:workflows`;
 const ARTIST_GENRES_KEY = `${APP_KEY}:artist-genres`;
 
-export type ItemWithExpiry<T> = {
-    value: T;
-    expiry: number;
-};
+export type SavedLegacyWorkflow = Omit<SavedWorkflow, 'lastUpdated'>;
 
-export type SavedWorkflow = ReactFlowJsonObject & {
-    id: string;
-    name: string;
-};
-
-export function saveWorkflowToStorage(workflow: SavedWorkflow): void {
-    const workflows: SavedWorkflow[] = getWorkflowsFromStorage();
-
-    // Remove the workflow if it already exists
-    const filteredWorkflows = workflows.filter((w) => w.id !== workflow.id);
-
-    Spicetify.LocalStorage.set(
-        WORKFLOW_KEY,
-        JSON.stringify([...filteredWorkflows, workflow]),
-    );
-}
-
-export function removeWorkflowFromStorage(id: string): void {
-    const workflows: SavedWorkflow[] = getWorkflowsFromStorage();
-
-    const filteredWorkflows = workflows.filter((w) => w.id !== id);
-
-    Spicetify.LocalStorage.set(WORKFLOW_KEY, JSON.stringify(filteredWorkflows));
-}
-
-export function getWorkflowsFromStorage(): SavedWorkflow[] {
+export function getWorkflowsFromStorage(): SavedLegacyWorkflow[] {
     return JSON.parse(
         Spicetify.LocalStorage.get(WORKFLOW_KEY) ?? '[]',
-    ) as SavedWorkflow[];
+    ) as SavedLegacyWorkflow[];
+}
+
+export async function migrateLegacyWorkflows(): Promise<void> {
+    // Save existing workflows in indexedDB
+    const workflows = getWorkflowsFromStorage();
+
+    if (workflows.length === 0) {
+        return;
+    }
+
+    await insertLegacyWorkflows(workflows);
+
+    // Clear legacy storage
+    Spicetify.LocalStorage.remove(WORKFLOW_KEY);
 }
 
 export function deleteLegacyArtistGenres(): void {

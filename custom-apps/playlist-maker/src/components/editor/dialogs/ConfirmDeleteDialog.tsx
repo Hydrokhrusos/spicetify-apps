@@ -1,10 +1,7 @@
+import { deleteWorkflow } from 'custom-apps/playlist-maker/src/db/workflows/workflow-db';
 import useDialogStore, {
     type DialogState,
 } from 'custom-apps/playlist-maker/src/stores/dialog-store';
-import {
-    getWorkflowsFromStorage,
-    removeWorkflowFromStorage,
-} from 'custom-apps/playlist-maker/src/utils/storage-utils';
 import React from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -13,20 +10,17 @@ export function ConfirmDeleteDialog(): JSX.Element {
         showConfirmDeleteModal,
         setShowConfirmDeleteModal,
         selectedWorkflow,
-        setSavedWorkflows,
     }: Pick<
         DialogState,
         | 'showConfirmDeleteModal'
         | 'setShowConfirmDeleteModal'
         | 'selectedWorkflow'
-        | 'setSavedWorkflows'
     > = useDialogStore(
         useShallow((state) => {
             return {
                 showConfirmDeleteModal: state.showConfirmDeleteModal,
                 setShowConfirmDeleteModal: state.setShowConfirmDeleteModal,
                 selectedWorkflow: state.selectedWorkflow,
-                setSavedWorkflows: state.setSavedWorkflows,
             };
         }),
     );
@@ -34,11 +28,10 @@ export function ConfirmDeleteDialog(): JSX.Element {
     return (
         <Spicetify.ReactComponent.ConfirmDialog
             isOpen={showConfirmDeleteModal}
-            onConfirm={() => {
+            onConfirm={async () => {
                 setShowConfirmDeleteModal(false);
                 if (selectedWorkflow !== null) {
-                    removeWorkflowFromStorage(selectedWorkflow.id);
-                    setSavedWorkflows(getWorkflowsFromStorage());
+                    await deleteWorkflow(selectedWorkflow.id);
                 }
             }}
             onClose={() => {

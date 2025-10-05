@@ -1,9 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { saveOrUpdateWorkflow } from 'custom-apps/playlist-maker/src/db/workflows/workflow-db';
 import useDialogStore from 'custom-apps/playlist-maker/src/stores/dialog-store';
 import useAppStore, {
     type AppState,
 } from 'custom-apps/playlist-maker/src/stores/store';
-import { saveWorkflowToStorage } from 'custom-apps/playlist-maker/src/utils/storage-utils';
 import { CirclePlus, Network, Save } from 'lucide-react';
 import React, { useCallback, useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
@@ -86,16 +86,17 @@ export function CenterPanel(): JSX.Element {
         })),
     );
 
-    const saveWorkflow = useCallback(() => {
+    const saveWorkflow = useCallback(async () => {
         if (reactFlowInstance === null) {
             return;
         }
 
         const flow = reactFlowInstance.toObject();
-        saveWorkflowToStorage({
+        await saveOrUpdateWorkflow({
             ...flow,
             id: workflowId,
             name: workflowName,
+            lastUpdated: Date.now(),
         });
         onWorkflowSaved();
         Spicetify.showNotification('Workflow saved', false, 1000);
@@ -123,8 +124,8 @@ export function CenterPanel(): JSX.Element {
                         <Spicetify.ReactComponent.ButtonTertiary
                             aria-label="Save workflow"
                             disabled={!hasPendingChanges || !isValid}
-                            onClick={() => {
-                                saveWorkflow();
+                            onClick={async () => {
+                                await saveWorkflow();
                             }}
                             buttonSize="sm"
                             iconOnly={() => <Save size={20} />}
