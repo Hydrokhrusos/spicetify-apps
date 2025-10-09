@@ -37,6 +37,7 @@ export function TrackListGrid<T extends string>(
     const [selectedTracks, setSelectedTracks] = useState<Map<string, ITrack>>(
         new Map<string, ITrack>(),
     );
+
     const dragHandler = useMemo(() => {
         const mapAsArray: [string, ITrack][] = Array.from(
             selectedTracks.entries(),
@@ -83,6 +84,14 @@ export function TrackListGrid<T extends string>(
         }
     }
 
+    const style = {
+        '--tracklist-index-column-width': '36px',
+        '--col1-min-width': '180px',
+        '--col2-min-width': '120px',
+        '--col3-min-width': '120px',
+        '--col4-min-width': '120px',
+    } as React.CSSProperties;
+
     return (
         <div className="contentSpacing">
             <div
@@ -92,6 +101,7 @@ export function TrackListGrid<T extends string>(
                 aria-label={props.gridLabel}
                 className="main-trackList-trackList main-trackList-indexable"
                 tabIndex={0}
+                style={style}
             >
                 <TrackListHeader
                     headers={props.headers}
