@@ -14,7 +14,7 @@ import { StorageService } from './storage-service';
  */
 type TracksWithCover = {
     tracks: Track[];
-    cover: ImageData;
+    cover: ImageData | null;
 };
 
 export class LocalTracksService {
@@ -420,7 +420,7 @@ export class LocalTracksService {
                     // Separate these tracks
                     tracksWithCover.push({
                         tracks,
-                        cover: null!,
+                        cover: null,
                     });
 
                     continue;
@@ -428,13 +428,15 @@ export class LocalTracksService {
 
                 const imageData = this.getImageDataFromCanvas(image);
 
-                const tracksWithSameCover = tracksWithCover.find(
-                    (x) =>
-                        this.getImageDifferenceWithPixelMatch(
-                            x.cover,
-                            imageData,
-                        ) === 0,
-                );
+                const tracksWithSameCover = tracksWithCover
+                    .filter((x) => x.cover !== null)
+                    .find(
+                        (x) =>
+                            this.getImageDifferenceWithPixelMatch(
+                                x.cover!,
+                                imageData,
+                            ) === 0,
+                    );
 
                 if (tracksWithSameCover === undefined) {
                     // No tracks with the same cover
