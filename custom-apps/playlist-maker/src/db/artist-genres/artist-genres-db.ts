@@ -71,9 +71,18 @@ export const getAll = async (): Promise<ArtistGenres[]> => {
  */
 export const getAllSorted = (search: string): Promise<ArtistGenres[]> => {
     return artistGenresDb.artists
-        .where('artistName')
-        .startsWithIgnoreCase(search)
-        .sortBy('artistName');
+        .orderBy('artistName')
+        .filter((artist) => {
+            return (
+                artist.artistName
+                    .toLowerCase()
+                    .includes(search.toLowerCase()) ||
+                artist.genres.some((genre) =>
+                    genre.toLowerCase().includes(search.toLowerCase()),
+                )
+            );
+        })
+        .toArray();
 };
 
 /**

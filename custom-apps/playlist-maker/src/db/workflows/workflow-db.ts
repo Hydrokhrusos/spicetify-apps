@@ -37,9 +37,11 @@ export const getAllSorted = async (
     search: string,
 ): Promise<SavedWorkflowMetadata[]> => {
     const workflows = await workflowsDb.workflows
-        .where('name')
-        .startsWithIgnoreCase(search)
-        .sortBy('name');
+        .orderBy('name')
+        .filter((workflow) => {
+            return workflow.name.toLowerCase().includes(search.toLowerCase());
+        })
+        .toArray();
 
     return workflows.map((wf) => ({
         id: wf.id,

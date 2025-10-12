@@ -1,7 +1,8 @@
 import { TextComponent } from '@shared/components/ui/TextComponent/TextComponent';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { highlightSearchTerm } from 'highlight-search-term';
 import { Trash } from 'lucide-react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import {
     clearAll,
@@ -26,6 +27,13 @@ export function SettingsModal(): JSX.Element {
         setSearch(value);
         debouncedSearchCallback(value);
     };
+
+    useEffect(() => {
+        highlightSearchTerm({
+            search: debouncedSearch,
+            selector: '#artist-genres-table tbody',
+        });
+    }, [debouncedSearch]);
 
     return (
         <>
@@ -64,7 +72,10 @@ export function SettingsModal(): JSX.Element {
                 }}
             />
             <div className="max-h-80 w-full overflow-scroll">
-                <table className="w-full overflow-x-clip border border-solid border-(--essential-subdued)">
+                <table
+                    id="artist-genres-table"
+                    className="w-full overflow-x-clip border border-solid border-(--essential-subdued)"
+                >
                     <thead>
                         <th className="border border-solid border-(--essential-subdued)">
                             Artist

@@ -26,6 +26,7 @@
         "dexie": "^4.2.0",
         "dexie-react-hooks": "^4.2.0",
         "downshift": "^9.0.8",
+        "highlight-search-term": "^1.0.3",
         "jsdom": "^24.1.0",
         "lucide-react": "^0.396.0",
         "luxon": "^3.6.1",

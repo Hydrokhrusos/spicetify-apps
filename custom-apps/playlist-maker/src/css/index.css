@@ -43,3 +43,8 @@
         position: initial !important;
     }
 }
+
+::highlight(search) {
+    background-color: var(--spice-notification);
+    color: var(--spice-text);
+}
