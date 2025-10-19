@@ -41,13 +41,15 @@ export class AddToPlaylistProcessor extends ResultNodeProcessor<AddToPlaylistDat
                 const playlistTracks =
                     await playlistApi.getContents(playlistUri);
 
-                await playlistApi.remove(
-                    playlistUri,
-                    playlistTracks.items.map((t) => ({
-                        uri: t.uri,
-                        uid: t.uid,
-                    })),
-                );
+                if (playlistTracks.items.length > 0) {
+                    await playlistApi.remove(
+                        playlistUri,
+                        playlistTracks.items.map((t) => ({
+                            uri: t.uri,
+                            uid: t.uid,
+                        })),
+                    );
+                }
             }
 
             let tracksToAdd = tracks.map((t) => t.uri);
