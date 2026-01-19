@@ -1,1 +1,3 @@
-export const CHANGE_NOTES = ['Fixed height on comfy theme'];
+export const CHANGE_NOTES = [
+    'Fixed a "No analysis available for this track" error',
+];
