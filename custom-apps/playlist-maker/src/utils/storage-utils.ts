@@ -1,79 +1,35 @@
-import type { ReactFlowJsonObject } from 'reactflow';
+import type { SavedWorkflow } from '../db/workflows/saved-workflow';
+import { insertLegacyWorkflows } from '../db/workflows/workflow-db';
+
+// Legacy storage system
+// TODO: Remove this in a future version
 
 const APP_KEY = 'playlist-maker';
 const WORKFLOW_KEY = `${APP_KEY}:workflows`;
 const ARTIST_GENRES_KEY = `${APP_KEY}:artist-genres`;
 
-export type ItemWithExpiry<T> = {
-    value: T;
-    expiry: number;
-};
+export type SavedLegacyWorkflow = Omit<SavedWorkflow, 'lastUpdated'>;
 
-export type SavedWorkflow = ReactFlowJsonObject & {
-    id: string;
-    name: string;
-};
-
-export function saveWorkflowToStorage(workflow: SavedWorkflow): void {
-    const workflows: SavedWorkflow[] = getWorkflowsFromStorage();
-
-    // Remove the workflow if it already exists
-    const filteredWorkflows = workflows.filter((w) => w.id !== workflow.id);
-
-    Spicetify.LocalStorage.set(
-        WORKFLOW_KEY,
-        JSON.stringify([...filteredWorkflows, workflow]),
-    );
-}
-
-export function removeWorkflowFromStorage(id: string): void {
-    const workflows: SavedWorkflow[] = getWorkflowsFromStorage();
-
-    const filteredWorkflows = workflows.filter((w) => w.id !== id);
-
-    Spicetify.LocalStorage.set(WORKFLOW_KEY, JSON.stringify(filteredWorkflows));
-}
-
-export function getWorkflowsFromStorage(): SavedWorkflow[] {
+export function getWorkflowsFromStorage(): SavedLegacyWorkflow[] {
     return JSON.parse(
         Spicetify.LocalStorage.get(WORKFLOW_KEY) ?? '[]',
-    ) as SavedWorkflow[];
+    ) as SavedLegacyWorkflow[];
 }
 
-export function setArtistsGenresCache(
-    artistsGenres: Map<string, ItemWithExpiry<string[]>>,
-): void {
-    Spicetify.LocalStorage.set(
-        ARTIST_GENRES_KEY,
-        JSON.stringify(Array.from(artistsGenres)),
-    );
-}
+export async function migrateLegacyWorkflows(): Promise<void> {
+    // Save existing workflows in indexedDB
+    const workflows = getWorkflowsFromStorage();
 
-export function getArtistsGenresCache(): Map<string, ItemWithExpiry<string[]>> {
-    const cache = JSON.parse(
-        Spicetify.LocalStorage.get(ARTIST_GENRES_KEY) ?? '[]',
-    ) as [string, ItemWithExpiry<string[]>][];
-
-    return new Map(cache);
-}
-
-export function removeExpired<T>(
-    map: Map<string, ItemWithExpiry<T>>,
-): Map<string, ItemWithExpiry<T>> {
-    const now = new Date();
-
-    for (const [key, value] of map.entries()) {
-        if (value.expiry < now.getTime()) {
-            map.delete(key);
-        }
+    if (workflows.length === 0) {
+        return;
     }
 
-    return map;
+    await insertLegacyWorkflows(workflows);
+
+    // Clear legacy storage
+    Spicetify.LocalStorage.remove(WORKFLOW_KEY);
 }
 
-export function createWithExpiry<T>(value: T, ttl: number): ItemWithExpiry<T> {
-    return {
-        value,
-        expiry: new Date().getTime() + ttl,
-    };
+export function deleteLegacyArtistGenres(): void {
+    Spicetify.LocalStorage.remove(ARTIST_GENRES_KEY);
 }

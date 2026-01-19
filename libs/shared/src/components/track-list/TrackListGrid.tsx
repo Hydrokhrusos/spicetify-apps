@@ -4,7 +4,6 @@ import { PlayStatus, usePlayStatus } from '@shared/hooks/use-play-status';
 import { getTranslation } from '@shared/utils/translations.utils';
 import React, { useMemo, useState } from 'react';
 import type { ITrack } from './models/interfaces';
-import styles from './TrackListGrid.module.scss';
 import type { Props as TrackListHeaderProps } from './TrackListHeader';
 import { TrackListHeader } from './TrackListHeader';
 import { TrackListRow } from './TrackListRow';
@@ -37,6 +36,7 @@ export function TrackListGrid<T extends string>(
     const [selectedTracks, setSelectedTracks] = useState<Map<string, ITrack>>(
         new Map<string, ITrack>(),
     );
+
     const dragHandler = useMemo(() => {
         const mapAsArray: [string, ITrack][] = Array.from(
             selectedTracks.entries(),
@@ -83,6 +83,18 @@ export function TrackListGrid<T extends string>(
         }
     }
 
+    const style = {
+        '--placeholder-image': 'url(/images/tracklist-placeholder.webp)',
+        '--placeholder-image-compact':
+            'url(/images/tracklist-placeholder-compact.webp)',
+        '--row-height': props.displayType === 'compact' ? '32px' : '56px',
+        '--first-min-width': '180px',
+        '--var1-min-width': '120px',
+        '--var2-min-width': '120px',
+        '--var3-min-width': '120px',
+        '--last-min-width': '120px',
+    } as React.CSSProperties;
+
     return (
         <div className="contentSpacing">
             <div
@@ -92,6 +104,7 @@ export function TrackListGrid<T extends string>(
                 aria-label={props.gridLabel}
                 className="main-trackList-trackList main-trackList-indexable"
                 tabIndex={0}
+                style={style}
             >
                 <TrackListHeader
                     headers={props.headers}
@@ -99,13 +112,7 @@ export function TrackListGrid<T extends string>(
                     onHeaderClicked={props.onHeaderClicked}
                 ></TrackListHeader>
 
-                <div
-                    className={
-                        props.displayType === 'compact'
-                            ? styles['display-list-compact']
-                            : styles['display-list']
-                    }
-                >
+                <div>
                     {props.tracks.map((track, index) => (
                         <TrackListRow
                             key={track.uri}

@@ -17,10 +17,25 @@ const ParamsSchema = z
 
 export type Params = z.infer<typeof ParamsSchema>;
 
+const getSpAudioData = async (
+    uri: string,
+): Promise<AudioAnalysis | null | undefined> => {
+    return (await Spicetify.getAudioData(uri)) as
+        | AudioAnalysis
+        | null
+        | undefined;
+};
+
 export async function getTrackAudioAnalysis(
     params: Params,
 ): Promise<AudioAnalysis> {
     ParamsSchema.parse(params);
+
+    const spicetifyAudioData = await getSpAudioData(params.uri);
+
+    if (spicetifyAudioData) {
+        return spicetifyAudioData;
+    }
 
     const id = getId(Spicetify.URI.fromString(params.uri));
 

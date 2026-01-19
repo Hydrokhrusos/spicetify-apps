@@ -17,10 +17,27 @@ const ParamsSchema = z
 
 export type Params = z.infer<typeof ParamsSchema>;
 
+const getSpAudioFeatures = async (
+    uri: string,
+): Promise<AudioFeatures | null | undefined> => {
+    const uriObj = Spicetify.URI.fromString(uri);
+    const uriId = getId(uriObj);
+
+    return (await Spicetify.CosmosAsync.get(
+        `https://spclient.wg.spotify.com/audio-attributes/v1/audio-features/${uriId}?format=json`,
+    )) as AudioFeatures | null | undefined;
+};
+
 export async function getTrackAudioFeatures(
     params: Params,
 ): Promise<AudioFeatures> {
     ParamsSchema.parse(params);
+
+    const spicetifyAudioFeatures = await getSpAudioFeatures(params.uri);
+
+    if (spicetifyAudioFeatures) {
+        return spicetifyAudioFeatures;
+    }
 
     const id = getId(Spicetify.URI.fromString(params.uri));
 

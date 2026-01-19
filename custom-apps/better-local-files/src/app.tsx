@@ -20,6 +20,7 @@ import {
     TRACKS_ROUTE,
 } from './constants/constants';
 import styles from './css/app.module.scss';
+import './css/tailwind.css';
 
 function App(): JSX.Element {
     const isReady = useObservableEagerState(window.localTracksService.isReady$);

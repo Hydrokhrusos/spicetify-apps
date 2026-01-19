@@ -5,8 +5,8 @@ import {
     LibraryAPITrackSortOptionOrders,
 } from '@shared/platform/library';
 import { getPlatform } from '@shared/utils/spicetify-utils';
+import { getGenresByArtists } from 'custom-apps/playlist-maker/src/db/artist-genres/artist-genres-db';
 import { mapInternalTrackToWorkflowTrack } from 'custom-apps/playlist-maker/src/utils/mapping-utils';
-import { getArtistsGenresCache } from 'custom-apps/playlist-maker/src/utils/storage-utils';
 import { z } from 'zod';
 import { type WorkflowTrack } from '../../../types/workflow-track';
 import { BaseNodeDataSchema } from '../base-node-processor';
@@ -70,7 +70,7 @@ export class LikedSongsSourceProcessor extends NodeProcessor<LikedSongsData> {
         let tracks = apiResult.items;
 
         if (genres.length > 0) {
-            tracks = this.filterTracksByGenres(
+            tracks = await this.filterTracksByGenres(
                 tracks,
                 new Set(genres),
                 this.data.limit,
@@ -82,11 +82,11 @@ export class LikedSongsSourceProcessor extends NodeProcessor<LikedSongsData> {
         );
     }
 
-    private filterTracksByGenres(
+    private async filterTracksByGenres(
         tracks: LibraryAPITrack[],
         genres: Set<string>,
         limit: number | undefined,
-    ): LibraryAPITrack[] {
+    ): Promise<LibraryAPITrack[]> {
         const result = [];
 
         // Don't keep local tracks as we can't get genres from them
@@ -94,11 +94,15 @@ export class LikedSongsSourceProcessor extends NodeProcessor<LikedSongsData> {
             (track) => !Spicetify.URI.isLocalTrack(track.uri),
         );
 
-        const artistGenres = getArtistsGenresCache();
+        const artistGenres = await getGenresByArtists(
+            libraryTracks
+                .flatMap((track) => track.artists)
+                .map((artist) => artist.uri),
+        );
 
         for (const track of libraryTracks) {
             const trackGenres = track.artists.flatMap(
-                (artist) => artistGenres.get(artist.uri)?.value ?? [],
+                (artist) => artistGenres.get(artist.uri) ?? [],
             );
 
             if (trackGenres.some((trackGenre) => genres.has(trackGenre))) {

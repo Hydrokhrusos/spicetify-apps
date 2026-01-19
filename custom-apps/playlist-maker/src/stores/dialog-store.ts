@@ -1,17 +1,15 @@
 import { create } from 'zustand';
-import type { SavedWorkflow } from '../utils/storage-utils';
+import type { SavedWorkflowMetadata } from '../db/workflows/saved-workflow';
 
 export type DialogState = {
     showConfirmNewModal: boolean;
     showConfirmLoadModal: boolean;
     showConfirmDeleteModal: boolean;
-    selectedWorkflow: SavedWorkflow | null;
-    savedWorkflows: SavedWorkflow[];
+    selectedWorkflow: SavedWorkflowMetadata | null;
     setShowConfirmNewModal: (show: boolean) => void;
     setShowConfirmLoadModal: (show: boolean) => void;
     setShowConfirmDeleteModal: (show: boolean) => void;
-    setSelectedWorkflow: (workflow: SavedWorkflow | null) => void;
-    setSavedWorkflows: (workflows: SavedWorkflow[]) => void;
+    setSelectedWorkflow: (workflow: SavedWorkflowMetadata | null) => void;
 };
 
 export const useDialogStore = create<DialogState>((set) => ({
@@ -19,7 +17,6 @@ export const useDialogStore = create<DialogState>((set) => ({
     showConfirmLoadModal: false,
     showConfirmDeleteModal: false,
     selectedWorkflow: null,
-    savedWorkflows: [],
     setShowConfirmNewModal: (show) => {
         set({ showConfirmNewModal: show });
     },
@@ -31,9 +28,6 @@ export const useDialogStore = create<DialogState>((set) => ({
     },
     setSelectedWorkflow: (workflow) => {
         set({ selectedWorkflow: workflow });
-    },
-    setSavedWorkflows: (workflows) => {
-        set({ savedWorkflows: workflows });
     },
 }));
 

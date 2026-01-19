@@ -1,9 +1,7 @@
 export const CHANGE_NOTES = [
-    'Added a new result node to directly add the result to a playlist',
-    'Added a new source node (playlist recommended tracks)',
-    'Added a new processing node (subset)',
-    'Added two new filter nodes (is explicit and is saved)',
-    'Moved the result count to the topbar',
-    'Added a loading indicator to dropdowns',
-    'Renamed the "Relative complement" node to "Substract" for clarity (If you have saved workflow with this node, the node will be blank and you will need to replace it)',
+    'Fixed the track layout',
+    'Fixed the "replace playlist" node when target playlist is empty',
+    'Fixed audio features filters',
+    'Added settings related to the artist genres cache to the settings modal',
+    'NOTE: Due to recent changes in the Spotify API, some features may be broken (for example: liked songs genres and top tracks)',
 ];

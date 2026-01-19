@@ -1,5 +1,9 @@
 import type { Item } from '@shared/components/inputs/Select/Select';
 import { SpotifyIcon } from '@shared/components/ui/SpotifyIcon/SpotifyIcon';
+import {
+    getAllGenres,
+    setLibraryGenresToCache,
+} from 'custom-apps/playlist-maker/src/db/artist-genres/artist-genres-db';
 import { useMultiSelectValues } from 'custom-apps/playlist-maker/src/hooks/use-multiselect-values';
 import { useNodeForm } from 'custom-apps/playlist-maker/src/hooks/use-node-form';
 import {
@@ -8,7 +12,6 @@ import {
 } from 'custom-apps/playlist-maker/src/models/processors/sources/liked-songs-source-processor';
 import { Noop } from 'custom-apps/playlist-maker/src/utils/function-utils';
 import { getDefaultValueForNodeType } from 'custom-apps/playlist-maker/src/utils/node-utils';
-import { setLibraryGenresToCache } from 'custom-apps/playlist-maker/src/utils/track-utils';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Handle, Position, type NodeProps } from 'reactflow';
 import { type ItemRendererProps } from '../../inputs/MultiSelect';
@@ -137,14 +140,8 @@ export function LikedSongsSourceNode(
 
     useEffect(() => {
         const fetchGenres = async (): Promise<void> => {
-            const genreCache = await setLibraryGenresToCache();
-            const uniqueGenres = new Set<string>();
-
-            genreCache.forEach((genres) => {
-                for (const genre of genres) {
-                    uniqueGenres.add(genre);
-                }
-            });
+            await setLibraryGenresToCache();
+            const uniqueGenres = await getAllGenres();
 
             setLibraryGenres(
                 Array.from(uniqueGenres)
