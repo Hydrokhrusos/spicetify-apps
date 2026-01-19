@@ -22,14 +22,19 @@ export async function getTrackAudioAnalysis(
 ): Promise<AudioAnalysis> {
     ParamsSchema.parse(params);
 
-    const id = getId(Spicetify.URI.fromString(params.uri));
+    let spicetify_audio_data = await Spicetify.getAudioData(params.uri);
+    if (spicetify_audio_data) {
+      return spicetify_audio_data;
+    } else {
+      const id = getId(Spicetify.URI.fromString(params.uri));
 
-    const sender = getWebApiRequestSender();
+      const sender = getWebApiRequestSender();
 
-    const response = await sender
-        .withPath(`/audio-analysis/${id}`)
-        .withEndpointIdentifier('/audio-analysis/{id}')
-        .send<AudioAnalysis>();
+      const response = await sender
+          .withPath(`/audio-analysis/${id}`)
+          .withEndpointIdentifier('/audio-analysis/{id}')
+          .send<AudioAnalysis>();
 
-    return response.body;
+      return response.body;
+    }
 }
