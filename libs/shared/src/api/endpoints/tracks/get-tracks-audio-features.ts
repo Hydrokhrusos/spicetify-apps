@@ -27,10 +27,28 @@ export type AudioFeaturesCollection = {
     audio_features: AudioFeatures[];
 };
 
+const getSpAudioFeatures = async (
+    ids: string,
+): Promise<AudioFeaturesCollection | null | undefined> => {
+    return (await Spicetify.CosmosAsync.get(
+        `https://spclient.wg.spotify.com/audio-attributes/v1/audio-features?ids=${ids}&format=json`,
+    )) as AudioFeaturesCollection | null | undefined;
+};
+
 export async function getTracksAudioFeatures(
     params: Params,
 ): Promise<AudioFeatures[]> {
     ParamsSchema.parse(params);
+
+    const ids = params.uris
+        .map((uri) => getId(Spicetify.URI.fromString(uri)))
+        .join(',');
+
+    const spicetifyAudioFeatures = await getSpAudioFeatures(ids);
+
+    if (spicetifyAudioFeatures) {
+        return spicetifyAudioFeatures.audio_features;
+    }
 
     const sender = getWebApiRequestSender();
 

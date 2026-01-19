@@ -17,24 +17,34 @@ const ParamsSchema = z
 
 export type Params = z.infer<typeof ParamsSchema>;
 
+const getSpAudioData = async (
+    uri: string,
+): Promise<AudioAnalysis | null | undefined> => {
+    return (await Spicetify.getAudioData(uri)) as
+        | AudioAnalysis
+        | null
+        | undefined;
+};
+
 export async function getTrackAudioAnalysis(
     params: Params,
 ): Promise<AudioAnalysis> {
     ParamsSchema.parse(params);
 
-    let spicetify_audio_data = await Spicetify.getAudioData(params.uri);
-    if (spicetify_audio_data) {
-      return spicetify_audio_data;
-    } else {
-      const id = getId(Spicetify.URI.fromString(params.uri));
+    const spicetifyAudioData = await getSpAudioData(params.uri);
 
-      const sender = getWebApiRequestSender();
-
-      const response = await sender
-          .withPath(`/audio-analysis/${id}`)
-          .withEndpointIdentifier('/audio-analysis/{id}')
-          .send<AudioAnalysis>();
-
-      return response.body;
+    if (spicetifyAudioData) {
+        return spicetifyAudioData;
     }
+
+    const id = getId(Spicetify.URI.fromString(params.uri));
+
+    const sender = getWebApiRequestSender();
+
+    const response = await sender
+        .withPath(`/audio-analysis/${id}`)
+        .withEndpointIdentifier('/audio-analysis/{id}')
+        .send<AudioAnalysis>();
+
+    return response.body;
 }
