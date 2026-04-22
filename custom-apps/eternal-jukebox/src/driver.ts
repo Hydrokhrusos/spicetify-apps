@@ -25,6 +25,11 @@ export class Driver {
     private playerSubscription: Subscription = new Subscription();
 
     /**
+     * Interval used to poll the player progress more aggressively.
+     */
+    private progressPoller: number | null = null;
+
+    /**
      * The beat that's currently playing.
      */
     private currentBeat: Beat | null = null;
@@ -63,6 +68,11 @@ export class Driver {
     private isSeekingResolver: ((playerTime: number) => boolean) | null = null;
 
     /**
+     * Prevent overlapping progress processing when polling aggressively.
+     */
+    private isProcessingProgress: boolean = false;
+
+    /**
      * How many beats passed since we last branched.
      * Used to avoid the jukebox getting out of sync after too many consecutive seeks.
      */
@@ -95,10 +105,28 @@ export class Driver {
                 distinctUntilChanged(), // onprogress keeps being fired even on pause
             )
             .subscribe((playerProgress) => {
-                void this.process(playerProgress);
+                this.processProgress(playerProgress);
             });
 
         this.playerSubscription.add(subscription);
+
+        this.progressPoller = window.setInterval(() => {
+            this.processProgress(Spicetify.Player.getProgress());
+        }, 16);
+    }
+
+    private processProgress(playerProgress: number): void {
+        if (this.isProcessingProgress) {
+            return;
+        }
+
+        this.isProcessingProgress = true;
+
+        void this.process(playerProgress)
+            .catch(console.error)
+            .finally(() => {
+                this.isProcessingProgress = false;
+            });
     }
 
     private readonly onBounceKeyDown = (event: KeyboardEvent): void => {
@@ -447,6 +475,13 @@ export class Driver {
     public stop(): void {
         this.playerSubscription.unsubscribe();
         this.playerSubscription = new Subscription();
+
+        if (this.progressPoller !== null) {
+            window.clearInterval(this.progressPoller);
+            this.progressPoller = null;
+        }
+
+        this.isProcessingProgress = false;
 
         document.removeEventListener('keydown', this.onBounceKeyDown);
         document.removeEventListener('keyup', this.onBounceKeyUp);
