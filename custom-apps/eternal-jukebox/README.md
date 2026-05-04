@@ -81,6 +81,20 @@ The settings button on the top right allows you to tune the jukebox.
 
 The reset button can be used to reset the settings to the default values.
 
+## Seamless Web Audio helper
+
+This fork adds a completely vibe coded seamless playback path. It runs a small local Deno helper that resolves and caches a track audio file with `yt-dlp`/FFmpeg, then the custom app decodes that file with Web Audio and schedules branches directly instead of relying on Spotify seek calls for every jump.
+
+The helper listens on `http://127.0.0.1:43173` and stores cached audio in `%LOCALAPPDATA%\SpicetifyEternalJukeboxAudioCache`.
+
+On Windows, start it from the app folder:
+
+```powershell
+.\start-seamless-helper.ps1
+```
+
+The runtime patch keeps Spotify volume, seeking, play/pause, and the jukebox visualization in sync with the Web Audio driver. If the helper is unavailable, the app falls back to the low-lag Spotify seek patch.
+
 ## Known issues
 
 -   Audio lag when jumping between parts of the song
