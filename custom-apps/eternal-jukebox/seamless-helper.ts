@@ -112,6 +112,14 @@ function contentTypeFor(path: string): string {
     return "application/octet-stream";
 }
 
+async function findOptionalExecutable(name: string, envName: string): Promise<string | null> {
+    try {
+        return await findExecutable(name, envName);
+    } catch {
+        return null;
+    }
+}
+
 async function commandOutput(command: string, args: string[]): Promise<{ code: number; stdout: string; stderr: string }> {
     const child = new Deno.Command(command, {
         args,
@@ -238,7 +246,7 @@ async function handle(request: Request): Promise<Response> {
                 ok: true,
                 cacheDir: CACHE_DIR,
                 ytDlp: await findExecutable("yt-dlp.exe", "EJB_YTDLP"),
-                ffmpeg: await findExecutable("ffmpeg.exe", "EJB_FFMPEG"),
+                ffmpeg: await findOptionalExecutable("ffmpeg.exe", "EJB_FFMPEG"),
             });
         }
 

@@ -12,17 +12,15 @@ It finds pathways through similar segments of the song and plays a never-ending 
 > See [known issues](#known-issues) and [upcoming features](#upcoming-features).
 
 
-## Auto Installation (Linux)
-```
-sh <(curl -s https://raw.githubusercontent.com/Hydrokhrusos/spicetify-apps/main/custom-apps/eternal-jukebox/src/install.sh)
-
-```
-
 ## Auto Installation (Windows, Powershell)
 ```
 iwr -useb "https://raw.githubusercontent.com/Hydrokhrusos/spicetify-apps/main/custom-apps/eternal-jukebox/src/install.ps1" | iex
 
 ```
+
+The Windows installer checks for Spicetify, installs the seamless helper dependencies with WinGet if needed, installs the app files, creates a Startup shortcut for the helper, starts the helper, verifies it is healthy, and then runs `spicetify apply`.
+
+Linux and macOS are not supported by the seamless helper installer yet.
 
 ## Manual Installation
 
@@ -83,22 +81,22 @@ The reset button can be used to reset the settings to the default values.
 
 ## Seamless Web Audio helper
 
-This fork adds a completely vibe coded seamless playback path. It runs a small local Deno helper that resolves and caches a track audio file with `yt-dlp`/FFmpeg, then the custom app decodes that file with Web Audio and schedules branches directly instead of relying on Spotify seek calls for every jump.
+This fork adds a seamless playback path. It runs a small local Deno helper that resolves and caches a track audio file with `yt-dlp`, then the custom app decodes that file with Web Audio and schedules branches directly.
 
 The helper listens on `http://127.0.0.1:43173` and stores cached audio in `%LOCALAPPDATA%\SpicetifyEternalJukeboxAudioCache`.
 
-On Windows, start it from the app folder:
+On Windows, the installer installs Deno and `yt-dlp` if they are missing, creates a Startup shortcut named `EternalJukeboxSeamlessHelper.lnk`, starts the helper once immediately after install, and verifies the helper health endpoint. After that, Windows starts the helper automatically when you log in.
 
 ```powershell
 .\start-seamless-helper.ps1
 ```
 
-The runtime patch keeps Spotify volume, seeking, play/pause, and the jukebox visualization in sync with the Web Audio driver. If the helper is unavailable, the app falls back to the low-lag Spotify seek patch.
+FFmpeg is optional. The current original-YouTube-audio path does not transcode or remux audio, but the helper will detect FFmpeg if you already have it installed.
+
+The runtime patch keeps Spotify volume, seeking, play/pause, and the jukebox visualization in sync with the Web Audio driver. If the helper is not running or cannot provide decodable audio, the jukebox disables.
 
 ## Known issues
 
--   Audio lag when jumping between parts of the song
--   Jukebox "freezing" and getting out of sync
 -   Songs getting stuck in short loops due to issues with the graph generation
 
 ## Upcoming features

@@ -1,33 +1,11 @@
-#!/bin/bash
+#!/bin/sh
+set -eu
 
-# Define variables
-CUSTOM_APPS_DIR="$HOME/.config/spicetify/CustomApps"
-NAME="eternal-jukebox"
+cat >&2 <<'EOF'
+This fork currently ships the seamless Web Audio helper for Windows only.
 
-CUSTOM_APP_DIR="$CUSTOM_APPS_DIR/$NAME"
+Use the Windows PowerShell installer from the README, or install the app files
+manually if you are deliberately setting up your own helper service.
+EOF
 
-ZIP_URL="https://github.com/Pithaya/spicetify-apps-dist/archive/refs/heads/dist/eternal-jukebox.zip"
-ZIP_FILE="/tmp/spicetifyed.zip"
-TEMP_DIR="/tmp/spicetifyed"
-
-# Create CustomApps directory if it doesn't exist
-mkdir -p "$CUSTOM_APPS_DIR"
-
-# Download the zip file
-curl -L -o "$ZIP_FILE" "$ZIP_URL"
-
-# Unzip the file
-unzip "$ZIP_FILE" -d "$TEMP_DIR"
-
-# Move the unzipped folder to the correct location
-mv "$TEMP_DIR"/* "$CUSTOM_APP_DIR"
-
-# Apply Spicetify configuration
-spicetify config custom_apps "$NAME"
-
-spicetify apply
-
-# Clean up
-rm -rf "$ZIP_FILE" "$TEMP_DIR"
-
-echo "Installation complete. Enjoy your new app!"
+exit 1

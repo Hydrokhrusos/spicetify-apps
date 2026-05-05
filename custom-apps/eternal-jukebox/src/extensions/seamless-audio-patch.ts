@@ -801,6 +801,29 @@
         return context.decodeAudioData(arrayBuffer.slice(0));
     }
 
+    async function isHelperRunning(timeoutMs = 600) {
+        const controller = new AbortController();
+        const timer = window.setTimeout(() => controller.abort(), timeoutMs);
+
+        try {
+            const response = await fetch(`${HELPER_BASE}/health`, {
+                cache: "no-store",
+                signal: controller.signal,
+            });
+
+            if (!response.ok) {
+                return false;
+            }
+
+            const data = await response.json().catch(() => null);
+            return Boolean(data?.ok);
+        } catch {
+            return false;
+        } finally {
+            window.clearTimeout(timer);
+        }
+    }
+
     async function loadAudioUrl(url, key) {
         notify("Fetching Web Audio source...");
         const response = await fetch(url);
@@ -827,6 +850,10 @@
         state.loadingKeys.add(key);
 
         try {
+            if (!await isHelperRunning()) {
+                throw new Error("Seamless helper is not running.");
+            }
+
             const query = getTrackLabel(songState);
             const resolveUrl = new URL(`${HELPER_BASE}/resolve`);
             resolveUrl.searchParams.set("query", query);
@@ -849,7 +876,6 @@
             return true;
         } catch (error) {
             console.error(error);
-            notify("Seamless helper unavailable; using Spotify seek fallback.", true);
             return false;
         } finally {
             state.loadingKeys.delete(key);
@@ -861,18 +887,30 @@
         return key ? state.buffers.get(key) : null;
     }
 
-    async function switchToSeamless(jukebox, announceFallback = false) {
+    function disableJukeboxWithSeamlessError(jukebox, message) {
+        notify(message, true);
+        jukebox?.disable?.();
+    }
+
+    async function switchToSeamless(jukebox, announceFailure = false) {
+        if (!jukebox?.songState) {
+            return false;
+        }
+
         let loaded = getLoadedAudio(jukebox?.songState);
 
-        if (!loaded?.buffer && jukebox?.songState) {
+        if (!loaded?.buffer) {
             const didLoad = await loadAudioFromHelper(jukebox.songState);
             loaded = didLoad ? getLoadedAudio(jukebox.songState) : null;
         }
 
-        if (!jukebox?.songState || !loaded?.buffer) {
-            if (announceFallback) {
-                notify("No decoded audio loaded for this track; using Spotify seek fallback.", true);
-            }
+        if (!loaded?.buffer) {
+            disableJukeboxWithSeamlessError(
+                jukebox,
+                announceFailure
+                    ? "No decoded audio loaded for this track; jukebox disabled."
+                    : "Seamless audio unavailable; jukebox disabled."
+            );
             return false;
         }
 
@@ -1061,6 +1099,11 @@
         const originalStop = jukebox.stop.bind(jukebox);
 
         jukebox.start = async function startWithSeamlessAudio(...args) {
+            if (!await isHelperRunning()) {
+                disableJukeboxWithSeamlessError(this, "Seamless helper is not running; jukebox disabled.");
+                return;
+            }
+
             const result = await originalStart(...args);
             await switchToSeamless(this, false);
             return result;

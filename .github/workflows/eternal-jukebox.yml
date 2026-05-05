@@ -9,6 +9,9 @@ on:
         paths: ['custom-apps/eternal-jukebox/**']
     workflow_dispatch:
 
+permissions:
+    contents: write
+
 jobs:
     build:
         runs-on: ubuntu-latest
@@ -35,10 +38,30 @@ jobs:
               run: cp README.md ./dist/README.md
             - name: Copy preview
               run: cp preview.png ./dist/preview.png
+            - name: Copy helper
+              run: |
+                  cp seamless-helper.ts ./dist/seamless-helper.ts
+                  cp start-seamless-helper.ps1 ./dist/start-seamless-helper.ps1
             - name: Deploy
-              uses: s0/git-publish-subdir-action@develop
-              env:
-                  REPO: git@github.com:Pithaya/spicetify-apps-dist.git
-                  BRANCH: dist/eternal-jukebox
-                  FOLDER: ./custom-apps/eternal-jukebox/dist
-                  SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
+              working-directory: ./
+              run: |
+                  set -euo pipefail
+
+                  deploy_dir="$(mktemp -d)"
+                  cp -R ./custom-apps/eternal-jukebox/dist/. "$deploy_dir/"
+
+                  git config user.name "github-actions[bot]"
+                  git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+                  git fetch origin dist/eternal-jukebox || true
+
+                  if git rev-parse --verify origin/dist/eternal-jukebox >/dev/null 2>&1; then
+                      git checkout -B dist/eternal-jukebox origin/dist/eternal-jukebox
+                  else
+                      git checkout --orphan dist/eternal-jukebox
+                  fi
+
+                  git rm -r . >/dev/null 2>&1 || true
+                  cp -R "$deploy_dir"/. .
+                  git add -A
+                  git commit -m "Build eternal-jukebox dist" || exit 0
+                  git push origin dist/eternal-jukebox

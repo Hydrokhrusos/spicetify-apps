@@ -8,6 +8,9 @@ on:
     paths: [ "custom-apps/**" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   copy:
   
@@ -23,10 +26,25 @@ jobs:
     - name: Copy Readme
       run: cp ./custom-apps/README.md ./custom-apps/deploy/README.md
     - name: Deploy
-      uses: s0/git-publish-subdir-action@develop
-      env:
-        REPO: git@github.com:Pithaya/spicetify-apps-dist.git
-        BRANCH: main
-        FOLDER: ./custom-apps/deploy
-        SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
+      run: |
+        set -euo pipefail
+
+        deploy_dir="$(mktemp -d)"
+        cp -R ./custom-apps/deploy/. "$deploy_dir/"
+
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git fetch origin dist/custom-apps || true
+
+        if git rev-parse --verify origin/dist/custom-apps >/dev/null 2>&1; then
+          git checkout -B dist/custom-apps origin/dist/custom-apps
+        else
+          git checkout --orphan dist/custom-apps
+        fi
+
+        git rm -r . >/dev/null 2>&1 || true
+        cp -R "$deploy_dir"/. .
+        git add -A
+        git commit -m "Build custom-apps manifest" || exit 0
+        git push origin dist/custom-apps
       
