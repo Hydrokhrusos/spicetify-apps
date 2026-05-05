@@ -1,4 +1,4 @@
-﻿// @ts-nocheck
+// @ts-nocheck
 (() => {
     const PATCH_FLAG = "__eternalJukboxSeamlessStableV9";
     const SCHEDULE_AHEAD_MS = 140;
@@ -8,6 +8,10 @@
     const START_DELAY_SEC = 0.035;
     const CROSSFADE_SEC = 0.010;
     const MIN_BEATS_BEFORE_BRANCHING = 5;
+    const SPOTIFY_NORMALIZATION_TARGET_DB = -23;
+    const MAX_NORMALIZATION_GAIN = 1;
+    const SPOTIFY_VOLUME_CURVE_EXPONENT = 3;
+    const SPOTIFY_OUTPUT_TRIM = 0.32;
     const HELPER_BASE = "http://127.0.0.1:43173";
 
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -164,6 +168,23 @@
         }
 
         return Math.max(0, Math.min(1, numeric > 1 ? numeric / 100 : numeric));
+    }
+
+    function getSpotifyNormalizationGain(songState) {
+        const loudnessDb = Number(songState?.analysis?.track?.loudness);
+
+        if (!Number.isFinite(loudnessDb)) {
+            return 1;
+        }
+
+        return Math.min(
+            MAX_NORMALIZATION_GAIN,
+            Math.pow(10, (SPOTIFY_NORMALIZATION_TARGET_DB - loudnessDb) / 20)
+        );
+    }
+
+    function spotifyVolumeToGain(volume) {
+        return Math.pow(clamp(volume, 0, 1), SPOTIFY_VOLUME_CURVE_EXPONENT);
     }
 
     async function getSpotifyVolume() {
@@ -368,6 +389,7 @@
             this.context = getAudioContext();
             this.output = this.context.createGain();
             this.output.gain.value = 1;
+            this.normalizationGain = getSpotifyNormalizationGain(this.songState);
             this.output.connect(this.context.destination);
             this.currentBeat = null;
             this.bouncing = false;
@@ -469,7 +491,11 @@
             const volume = await getSpotifyVolume();
 
             if (volume !== null) {
-                this.output.gain.setTargetAtTime(volume, this.context.currentTime, 0.015);
+                this.output.gain.setTargetAtTime(
+                    spotifyVolumeToGain(volume) * this.normalizationGain * SPOTIFY_OUTPUT_TRIM,
+                    this.context.currentTime,
+                    0.015
+                );
             }
         }
 

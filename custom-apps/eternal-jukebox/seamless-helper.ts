@@ -152,9 +152,7 @@ async function resolveAudio(query: string, trackKey: string): Promise<ResolveRes
     await Deno.mkdir(CACHE_DIR, { recursive: true });
 
     const ytDlp = await findExecutable("yt-dlp.exe", "EJB_YTDLP");
-    const ffmpeg = await findExecutable("ffmpeg.exe", "EJB_FFMPEG");
-    const ffmpegLocation = ffmpeg.replace(/\\ffmpeg\.exe$/i, "");
-    const cacheKey = sanitize(trackKey || query);
+    const cacheKey = sanitize(`${trackKey || query}.yt-original`);
     const existing = await newestMatchingFile(cacheKey);
 
     if (existing) {
@@ -167,13 +165,8 @@ async function resolveAudio(query: string, trackKey: string): Promise<ResolveRes
         "--no-playlist",
         "--default-search",
         "ytsearch1",
-        "--extract-audio",
-        "--audio-format",
-        "mp3",
-        "--audio-quality",
-        "0",
-        "--ffmpeg-location",
-        ffmpegLocation,
+        "--format",
+        "bestaudio/best",
         "--output",
         outputTemplate,
         "--print",

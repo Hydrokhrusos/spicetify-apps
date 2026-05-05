@@ -4,10 +4,24 @@ import type { Platform } from '../platform/platform';
  * Wait for Spicetify to load.
  */
 export async function waitForSpicetify(): Promise<void> {
+    if (Spicetify.Platform) {
+        return;
+    }
+
     await new Promise<void>((resolve) => {
+        let didResolve = false;
+        const resolveOnce = () => {
+            if (!didResolve) {
+                didResolve = true;
+                resolve();
+            }
+        };
+
         Spicetify.Events.platformLoaded.on(() => {
-            resolve();
+            resolveOnce();
         });
+
+        setTimeout(resolveOnce, 1500);
     });
 }
 

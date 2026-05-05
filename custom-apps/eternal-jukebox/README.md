@@ -2,7 +2,7 @@
 
 For when your favorite song just isn't long enough.
 
-![preview](https://raw.githubusercontent.com/Pithaya/spicetify-apps/main/custom-apps/eternal-jukebox/preview.png)
+![preview](https://raw.githubusercontent.com/Hydrokhrusos/spicetify-apps/main/custom-apps/eternal-jukebox/preview.png)
 
 A rewrite of the [Infinite / Eternal Jukebox](https://eternalbox.dev/jukebox_index.html) for Spicetify.  
 It finds pathways through similar segments of the song and plays a never-ending and ever changing version of the song.
@@ -14,13 +14,13 @@ It finds pathways through similar segments of the song and plays a never-ending 
 
 ## Auto Installation (Linux)
 ```
-sh <(curl -s https://raw.githubusercontent.com/Pithaya/spicetify-apps/main/custom-apps/eternal-jukebox/src/install.sh)
+sh <(curl -s https://raw.githubusercontent.com/Hydrokhrusos/spicetify-apps/main/custom-apps/eternal-jukebox/src/install.sh)
 
 ```
 
 ## Auto Installation (Windows, Powershell)
 ```
-iwr -useb "https://raw.githubusercontent.com/Pithaya/spicetify-apps/main/custom-apps/eternal-jukebox/src/install.ps1" | iex
+iwr -useb "https://raw.githubusercontent.com/Hydrokhrusos/spicetify-apps/main/custom-apps/eternal-jukebox/src/install.ps1" | iex
 
 ```
 
@@ -29,7 +29,7 @@ iwr -useb "https://raw.githubusercontent.com/Pithaya/spicetify-apps/main/custom-
 1. Run `spicetify config-dir` to open the spicetify folder.
 2. Go to the `CustomApps` folder.
 3. Create a `eternal-jukebox` folder.
-4. Download the custom app files as a zip from [here](https://github.com/Pithaya/spicetify-apps-dist/archive/refs/heads/dist/eternal-jukebox.zip).
+4. Download the custom app files as a zip from [here](https://github.com/Hydrokhrusos/spicetify-apps/archive/refs/heads/dist/eternal-jukebox.zip).
 5. Extract the zip and put the files inside the folder you created in step 3.
 
 Then, run the following commands:
@@ -43,15 +43,15 @@ spicetify apply
 
 A new "infinity" button allows you to enable and disable the jukebox. As long as the jukebox is enabled, the current song will play endlessly.
 
-![button](https://raw.githubusercontent.com/Pithaya/spicetify-apps/main/custom-apps/eternal-jukebox/docs/button.JPG)
+![button](https://raw.githubusercontent.com/Hydrokhrusos/spicetify-apps/main/custom-apps/eternal-jukebox/docs/button.JPG)
 
 Changing the current song will automatically play it through the jukebox.
 
-![sidebar](https://raw.githubusercontent.com/Pithaya/spicetify-apps/main/custom-apps/eternal-jukebox/docs/sidebar.JPG)
+![sidebar](https://raw.githubusercontent.com/Hydrokhrusos/spicetify-apps/main/custom-apps/eternal-jukebox/docs/sidebar.JPG)
 
 The custom app allows you to see a visualization of the jukebox's progress through the song.
 
-![visualization](https://raw.githubusercontent.com/Pithaya/spicetify-apps/main/custom-apps/eternal-jukebox/docs/visualization.png)
+![visualization](https://raw.githubusercontent.com/Hydrokhrusos/spicetify-apps/main/custom-apps/eternal-jukebox/docs/visualization.png)
 
 The circle is made out of the different beats of the song. Branches, or edges are the path linking similar beats together.
 
@@ -69,7 +69,7 @@ Below the graph you will find some stats about the current song:
 
 The settings button on the top right allows you to tune the jukebox.
 
-![settings](https://raw.githubusercontent.com/Pithaya/spicetify-apps/main/custom-apps/eternal-jukebox/docs/settings.png)
+![settings](https://raw.githubusercontent.com/Hydrokhrusos/spicetify-apps/main/custom-apps/eternal-jukebox/docs/settings.png)
 
 -   **Branch similarity threshold**: The maximum allowed "distance" between two branches. The higher it is, the more branches will be generated.
 -   **Branch probability range**: The minimum and maximum percentage of chance to use a branch each beat. The chance will start at the minimum value, and will increase by the **Branch probability ramp-up speed** value for every beat where it is not branching, until it reaches the maximum value.
