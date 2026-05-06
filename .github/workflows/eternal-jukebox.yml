@@ -53,6 +53,7 @@ jobs:
                   git config user.name "github-actions[bot]"
                   git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
                   git fetch origin dist/eternal-jukebox || true
+                  git clean -fdx
 
                   if git rev-parse --verify origin/dist/eternal-jukebox >/dev/null 2>&1; then
                       git checkout -B dist/eternal-jukebox origin/dist/eternal-jukebox
