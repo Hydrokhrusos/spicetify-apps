@@ -18,6 +18,25 @@ function Write-Step {
     Write-Host "[eternal-jukebox] $Message"
 }
 
+function Test-PathUnder {
+    param(
+        [Parameter(Mandatory = $true)][string]$Path,
+        [Parameter(Mandatory = $true)][string]$Root
+    )
+
+    try {
+        $trimChars = @([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar)
+        $fullPath = [IO.Path]::GetFullPath($Path).TrimEnd($trimChars)
+        $fullRoot = [IO.Path]::GetFullPath($Root).TrimEnd($trimChars)
+    } catch {
+        return $false
+    }
+
+    return $fullPath.Equals($fullRoot, [StringComparison]::OrdinalIgnoreCase) -or
+        $fullPath.StartsWith("$fullRoot$([IO.Path]::DirectorySeparatorChar)", [StringComparison]::OrdinalIgnoreCase) -or
+        $fullPath.StartsWith("$fullRoot$([IO.Path]::AltDirectorySeparatorChar)", [StringComparison]::OrdinalIgnoreCase)
+}
+
 function Find-CommandPath {
     param([Parameter(Mandatory = $true)][string[]]$Names)
 
@@ -251,6 +270,11 @@ $null = Ensure-WinGetTool -CommandNames @("yt-dlp.exe", "yt-dlp") -FileName "yt-
 
 Write-Step "Installing app files"
 New-Item -ItemType Directory -Force -Path $customAppsDir | Out-Null
+$originalLocation = (Get-Location).ProviderPath
+$restoreInsideApp = Test-PathUnder -Path $originalLocation -Root $customAppDir
+if ($restoreInsideApp) {
+    Set-Location -LiteralPath $env:TEMP
+}
 
 if (Test-Path -LiteralPath $tempDir) {
     Remove-Item -LiteralPath $tempDir -Recurse -Force
@@ -281,6 +305,13 @@ try {
     }
     if (Test-Path -LiteralPath $tempDir) {
         Remove-Item -LiteralPath $tempDir -Recurse -Force
+    }
+    if ($restoreInsideApp) {
+        if (Test-Path -LiteralPath $customAppDir -PathType Container) {
+            Set-Location -LiteralPath $customAppDir
+        } else {
+            Set-Location -LiteralPath $customAppsDir
+        }
     }
 }
 
