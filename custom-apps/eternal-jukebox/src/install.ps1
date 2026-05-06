@@ -289,16 +289,15 @@ try {
 
     Stop-ExistingHelper
 
-    if (Test-Path -LiteralPath $customAppDir) {
-        Remove-Item -LiteralPath $customAppDir -Recurse -Force
-    }
-
     $payload = Get-ChildItem -LiteralPath $tempDir | Select-Object -First 1
     if (-not $payload) {
         throw "Downloaded archive was empty."
     }
 
-    Move-Item -LiteralPath $payload.FullName -Destination $customAppDir
+    New-Item -ItemType Directory -Force -Path $customAppDir | Out-Null
+    Get-ChildItem -LiteralPath $payload.FullName -Force | ForEach-Object {
+        Copy-Item -LiteralPath $_.FullName -Destination $customAppDir -Recurse -Force
+    }
 } finally {
     if (Test-Path -LiteralPath $zipFile) {
         Remove-Item -LiteralPath $zipFile -Force
