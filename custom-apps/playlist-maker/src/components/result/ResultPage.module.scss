@@ -1,0 +1,16 @@
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 64px auto;
+    grid-template-areas:
+        'padding'
+        'main';
+}
+
+.padding {
+    grid-area: padding;
+}
+
+.main {
+    grid-area: main;
+}

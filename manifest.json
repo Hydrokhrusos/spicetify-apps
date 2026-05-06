@@ -1,0 +1,26 @@
+[
+    {
+        "name": "The Eternal Jukebox (Beta)",
+        "description": "Loop a song infinitely and (almost) seamlessly.",
+        "preview": "preview.png",
+        "readme": "README.md",
+        "branch": "dist/eternal-jukebox",
+        "tags": ["beta"]
+    },
+    {
+        "name": "Better local files",
+        "description": "View your local songs, albums and artists.",
+        "preview": "preview.png",
+        "readme": "README.md",
+        "branch": "dist/better-local-files",
+        "tags": ["local files", "library"]
+    },
+    {
+        "name": "Playlist maker",
+        "description": "Create playlists from a drag and drop editor.",
+        "preview": "preview.png",
+        "readme": "README.md",
+        "branch": "dist/playlist-maker",
+        "tags": ["playlist"]
+    }
+]
