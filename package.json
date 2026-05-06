@@ -1,0 +1,33 @@
+{
+    "name": "spicetify-apps",
+    "private": true,
+    "workspaces": [
+        "extensions/*",
+        "custom-apps/*",
+        "dev-extensions/*",
+        "libs/*"
+    ],
+    "scripts": {
+        "update-types": "curl -s -o ./libs/shared/src/types/spicetify.d.ts https://raw.githubusercontent.com/spicetify/spicetify-cli/master/globals.d.ts",
+        "lint": "npm run lint --workspaces",
+        "format": "npm run format --workspaces"
+    },
+    "devDependencies": {
+        "@eslint/eslintrc": "^3.2.0",
+        "@eslint/js": "^9.20.0",
+        "@types/react": "^18.2.0",
+        "@types/react-dom": "^18.2.0",
+        "eslint": "^9.20.1",
+        "eslint-config-prettier": "^10.0.1",
+        "eslint-plugin-prettier": "^5.2.3",
+        "eslint-plugin-react": "^7.37.4",
+        "eslint-plugin-react-hooks": "^5.1.0",
+        "eslint-plugin-sonarjs": "^3.0.2",
+        "globals": "^15.15.0",
+        "prettier": "^3.4.2",
+        "prettier-plugin-tailwindcss": "^0.6.11",
+        "spicetify-creator": "^1.0.17",
+        "typescript": "^5.8.3",
+        "typescript-eslint": "^8.36.0"
+    }
+}
