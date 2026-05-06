@@ -6,7 +6,9 @@ name: Eternal Jukebox Publish
 on:
     push:
         branches: ['main']
-        paths: ['custom-apps/eternal-jukebox/**']
+        paths:
+            - 'custom-apps/eternal-jukebox/**'
+            - '.github/workflows/eternal-jukebox.yml'
     workflow_dispatch:
 
 permissions:

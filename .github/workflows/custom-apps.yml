@@ -5,7 +5,9 @@ name: Custom apps manifest copy
 on:
   push:
     branches: [ "main" ]
-    paths: [ "custom-apps/**" ]
+    paths:
+      - "custom-apps/**"
+      - ".github/workflows/custom-apps.yml"
   workflow_dispatch:
 
 permissions:
